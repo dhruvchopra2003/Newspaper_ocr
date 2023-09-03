@@ -9,3 +9,5 @@ Also, to ensure all the libraries are correctly installed, create a new virtual 
 `pip install -r requirements.txt`
 
 To start execution, `python monitor.py`
+Refer to the official YOLO Documentation for further details about the image segmentation part of the project: [YOLOV8 Docs](https://docs.ultralytics.com/)
+Additional Python Resources and libraries: Watchdog, Pytesseract, TFIDF, NLTK etc were used.
