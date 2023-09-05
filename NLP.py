@@ -11,6 +11,35 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 # nltk.download('stopwords')
 
 
+def remove_bad_characters(s):
+    bad_chars = [
+        ";",
+        ":",
+        "|",
+        "?",
+        "*",
+        "-",
+        "$",
+        ">",
+        "<",
+        "/",
+        "%",
+        "@",
+        "~",
+        "=",
+        "{",
+        "}",
+        "(",
+        ")",
+        "[",
+        "]",
+        "_",
+    ]
+
+    s = "".join((filter(lambda i: i not in bad_chars, s)))
+    return s
+
+
 def get_keywords_2(article):
     words = word_tokenize(article)
     stop_words = set(stopwords.words("english"))
@@ -71,7 +100,7 @@ def tf_extract(article):
 
     # Get feature names (keywords) with highest TF-IDF scores
     keywords = vectorizer.get_feature_names_out()
-    stops = set(stopwords.words('english'))
+    stops = set(stopwords.words("english"))
     keywords = list(set(keywords))
 
     keywords = [key for key in keywords if key.lower() not in stops and len(key) > 3]
@@ -81,6 +110,7 @@ def tf_extract(article):
 
 from transformers import BertTokenizer, BertForMaskedLM
 import torch
+
 
 def extract_keywords_bert(article):
     # Load pre-trained BERT model and tokenizer

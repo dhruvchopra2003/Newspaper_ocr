@@ -20,9 +20,10 @@ class MyHandler(FileSystemEventHandler):
         # file_path = os.path.abspath(event.src_path)
         file_path = os.path.relpath(event.src_path)
 
-        print("File Detected")
+        if file_path != "":
+            print("File Detected")
         # Run the Python script
-        time.sleep(1)
+        # time.sleep(1)
         # os.system(f"python {python_script} --file_path '{file_path}'")
         # file_path = "url.txt"
         # with open(file_path)

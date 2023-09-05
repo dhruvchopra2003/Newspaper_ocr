@@ -8,6 +8,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 import textwrap
 import NLP
+import database_connector as dbc
 
 # from roboflow import Roboflow
 from ultralytics import YOLO
@@ -142,8 +143,8 @@ class FileHandler:
 # def execute():
 def execute(img_path):
     # img_path = input("Enter image path: ")
-    
-    # model_path = "models\\best.pt"
+
+
     model_path = os.path.join(".", "models", "best.pt")
 
     image_name = FileHandler.get_name(img_path)
@@ -169,11 +170,14 @@ def execute(img_path):
     # art_k = NLP.tf_extract(article_body)
     # art_k = NLP.get_keywords_2(article_body)
     
+
     keys = ""
     for k in keywords:
+        k = NLP.remove_bad_characters(k)
         keys = keys + "\n" + str(k) 
 
     for k in art_k:
+        k = NLP.remove_bad_characters(k)
         keys = keys + '\n' + str(k)
 
     FileHandler.delete_runs_dir()
@@ -183,6 +187,8 @@ def execute(img_path):
         f"results/{image_name[:-3]}"
     )
     FileHandler.create_directory(output_directory)
+
+    dbc.save_ocr_tesseract(image_name, output_directory, art_k, keywords)
 
     FileHandler.save_content(output_directory, "headline.txt", headline)
     FileHandler.save_content(output_directory, "article.txt", article_body)
