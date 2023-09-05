@@ -11,3 +11,5 @@ Also, to ensure all the libraries are correctly installed, create a new virtual 
 To start execution, `python monitor.py`
 Refer to the official YOLO Documentation for further details about the image segmentation part of the project: [YOLOV8 Docs](https://docs.ultralytics.com/)
 Additional Python Resources and libraries: [Watchdog](https://python-watchdog.readthedocs.io/en/stable/), [Pytesseract](https://pyimagesearch.com/2021/08/23/your-first-ocr-project-with-tesseract-and-python/), [TFIDF](https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html), NLTK etc. were used.
+
+- Refer to the jupyter notebook for the image acquisition and preprocessing techniques, model training, and other different pipelines related to the project [Pytesseract.ipynb](https://github.com/dhruvchopra2003/Newspaper_ocr/blob/master/pytesseract.ipynb)
