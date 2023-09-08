@@ -4,6 +4,7 @@ from watchdog.events import FileSystemEventHandler
 import time
 
 # The folder to be monitored
+# folder_to_monitor = r'\\192.168.248.31\irisprocess\tesseract\input'
 folder_to_monitor = 'images'
 
 # The Python script to be run when a new file is added to the folder
@@ -45,7 +46,7 @@ print("Observer Started")
 try:
     # Prevent the main thread from exiting
     while True:
-        time.sleep(1)
+        time.sleep(0.5)
 except KeyboardInterrupt:
     # Stop the observer gracefully if Ctrl+C is pressed
     observer.stop()
