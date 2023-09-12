@@ -5,9 +5,12 @@ from nltk.tokenize import word_tokenize
 from nltk.probability import FreqDist
 from nltk.tag import pos_tag
 from sklearn.feature_extraction.text import TfidfVectorizer
+from transformers import BertTokenizer, BertForMaskedLM
+import torch
 
-# # nltk.download('punkt')
-# # nltk.download('averaged_perceptron_tagger')
+# Uncomment the below code or run in a separate file if running nltk for the first time
+# nltk.download('punkt')
+# nltk.download('averaged_perceptron_tagger')
 # nltk.download('stopwords')
 
 
@@ -38,6 +41,15 @@ def remove_bad_characters(s):
 
     s = "".join((filter(lambda i: i not in bad_chars, s)))
     return s
+
+
+def remove_stop_words(txt):
+    keywords = word_tokenize(txt)
+    stop_words = set(stopwords.words("english"))
+    keyword_list = [
+        word for word in keywords if word.lower not in stop_words and len(word) > 2
+    ]
+    return keyword_list
 
 
 def get_keywords_2(article):
@@ -106,10 +118,6 @@ def tf_extract(article):
     keywords = [key for key in keywords if key.lower() not in stops and len(key) > 3]
 
     return keywords
-
-
-from transformers import BertTokenizer, BertForMaskedLM
-import torch
 
 
 def extract_keywords_bert(article):
