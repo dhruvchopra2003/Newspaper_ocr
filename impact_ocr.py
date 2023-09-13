@@ -1,11 +1,8 @@
 import pytesseract as ps
 import shutil
 import os
-import random
-import cv2
 from PIL import Image
-import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image
 import textwrap
 import NLP
 import database_connector as dbc
@@ -13,6 +10,7 @@ from datetime import date
 from ultralytics import YOLO
 from os import listdir
 
+# Class for initializing the YOLO Image segmentation OCR process
 class OCRProcessor:
     def __init__(self, model_path):
         self.model = YOLO(model_path)
@@ -32,6 +30,7 @@ class OCRProcessor:
         info = ps.image_to_string(Image.open(img_path))
         return info
 
+# Class to read text, using Pytesseract
 class TextExtractor:
     @staticmethod
     def combine_sentences(sentence1, sentence2):
@@ -94,7 +93,7 @@ class TextExtractor:
         info = ps.image_to_string(Image.open(img_path))
         return info
 
-
+# Class to extract the article details given in the image name
 class ArticleDetails:
     @staticmethod
     def get_info(image_name):
@@ -106,7 +105,7 @@ class ArticleDetails:
 
         return pubid, pubdate, page_no, page_name
 
-        
+# Consists of various useful file handling functions
 class FileHandler:
     @staticmethod
     def get_name(path):
@@ -151,86 +150,95 @@ class FileHandler:
             print("Error occured while deleting runs")
 
 
-# def execute():
+# Main function for execution, Called from app.py
 def execute(img_path):
-    # img_path = input("Enter image path: ")
 
     model_path = os.path.join(".", "models", "best.pt")
+
+    # Extracting necessary credentials
     image_name = FileHandler.get_name(img_path)
-
     pubid, pubdate, page_no, page_name = ArticleDetails.get_info(image_name)
+    currentDate = date.today()
 
+    # Initializing the OCR process class and to get image segmentation
     ocr_processor = OCRProcessor(model_path)
     ocr_processor.yolo_ocr(img_path)
 
-    # keywords = []
+    # Reading the headline text using pytessseract
     headline = "-"
     try:
         headline = TextExtractor.read_header(f"runs/detect/predict/crops/headlines/")
-
-        # keywords = NLP.get_keywords_blobs(headline)
-        # keywords = NLP.get_keywords(headline)
-        # keywords = NLP.extract_keywords_bert(headline)
-        # keywords = NLP.tf_extract(headline)
-        # keywords = NLP.get_keywords_2(headline)
     except:
         print("No headline")
 
+    # Reading the article text using pytesseract
     article_body = TextExtractor.read_article(img_path)
 
+    # List of functions and pipelines available for extracting important words, full text to list
+    art_k = NLP.remove_stop_words(article_body)
     # art_k = NLP.get_keywords_blobs(article_body)
-    # # art_k = NLP.get_keywords(article_body)
-    # # art_k = NLP.extract_keywords_bert(article_body)
-    # # art_k = NLP.tf_extract(article_body)
-    # # art_k = NLP.get_keywords_2(article_body)
+    # art_k = NLP.get_keywords(article_body)
+    # art_k = NLP.extract_keywords_bert(article_body)
+    # art_k = NLP.tf_extract(article_body)
+    # art_k = NLP.get_keywords_2(article_body)
 
-    # keys = ""
-    # try:
-    #     for k in keywords:
-    #         k = NLP.remove_bad_characters(k)
-    #         keys = keys + "\n" + str(k)
-    # except:
-    #     print("No header keywords")
+    # Cleaning the list
+    keys = []
+    for k in art_k:
+        k = NLP.remove_bad_characters(k)
+        keys.append(str(k))
+        # keys = keys + '\n' + str(k)
 
-    # for k in art_k:
-    #     k = NLP.remove_bad_characters(k)
-    #     keys = keys + '\n' + str(k)
-
+    # Deleting the temporary runs folder made by the YOLO library
     FileHandler.delete_runs_dir()
 
-    currentDate = date.today()
-
+    # Defining the output directories
     output_directory = (
-        # f"results/{image_name[:-3]}"
         f"outputs_without_keywords/{str(currentDate)}/{image_name[:-3]}"
         # rf"\\192.168.248.31\irisprocess\tesseract\output\{str(currentDate)}\{image_name[:-3]}"
         # f"results/{str(currentDate)}/{image_name[:-3]}"
-
     )
-
-    # Creating
     html_folder = os.path.join(output_directory, "html")
+
+    # Creating the directories for saving the outputs
     FileHandler.create_directory(output_directory)
     FileHandler.create_directory(html_folder)
 
-    # dbc.save_ocr_tesseract(image_name, output_directory, art_k, keywords)
-
     # Saving the data in OcrProcess Table
-    dbc.Insert_OcrProcess(image_name, Pubid=pubid, Pubdate=pubdate, PageNo=page_no, Title=headline, FolderPath=str(output_directory), Full_Text=article_body, Date_folder=currentDate)
+    try:
+        print("Inserting data into OcrProcess...")
+        dbc.Insert_OcrProcess(
+            FileName=image_name,
+            Pubid=pubid,
+            Pubdate=pubdate,
+            PageNo=page_no,
+            Title=headline,
+            FolderPath=str(output_directory),
+            Full_Text=article_body,
+            Date_folder=currentDate,
+        )
 
-    # Saving the contents into text and html files
+    except:
+        print("FileName already exists in the table")
+
+    # TODO: Increase efficiency and reduce time taken
+    # Inserting data into ocrkeywordlog table, by matching keywords from keyword_master
+    try:
+        print("Entering KeyIds into ocrkeywordlog...")
+        dbc.from_keyword_master(keys, image_name)
+    except Exception as exp:
+        print(exp)
+
+    # Saving the contents into Text and HTML files
     try:
         FileHandler.save_content(output_directory, "headline.txt", headline)
-        FileHandler.save_content(html_folder, "headline.html", headline)
+        # FileHandler.save_content(html_folder, "headline.html", headline)
     except:
-        print("No header saved")
+        print("No Header Saved")
 
     FileHandler.save_content(output_directory, "article.txt", article_body)
-    FileHandler.save_content(html_folder, "article.html", article_body)
+    FileHandler.save_content(html_folder, f"{image_name}.html", article_body)
     # FileHandler.save_content(output_directory, "keywords.txt", keys)
     FileHandler.save_img(img_path, output_directory, image_name)
+
     print("Execution completed.")
-
-
-if __name__ == "__main__":
-    execute()
