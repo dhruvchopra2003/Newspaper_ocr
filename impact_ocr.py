@@ -9,6 +9,7 @@ import database_connector as dbc
 from datetime import date
 from ultralytics import YOLO
 from os import listdir
+import create_template
 
 # Class for initializing the YOLO Image segmentation OCR process
 class OCRProcessor:
@@ -78,7 +79,7 @@ class TextExtractor:
         # text_with_separator = article.replace("\n\n", "</p>" + paragraph_separator + "<p>")
         text_with_separator = article.replace("\n\n", paragraph_separator)
 
-        # Wrap text at a maximum width of 80 characters
+        # Wrap text at a maximum width of 100 characters
         wrapped_text = textwrap.fill(text_with_separator, width=100)
 
         # Restore paragraph separations by replacing the unique separator
