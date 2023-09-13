@@ -149,7 +149,6 @@ class FileHandler:
         except:
             print("Error occured while deleting runs")
 
-
 # Main function for execution, Called from app.py
 def execute(img_path):
 
