@@ -45,7 +45,7 @@ def Insert_OcrKeywordlog(
 
 def Insert_OcrProcess(
     FileName=None,
-    Status=None,
+    Status=2,
     Pubid=None,
     Pubdate=None,
     PageNo=None,
@@ -61,12 +61,17 @@ def Insert_OcrProcess(
     db = connect_to_db()
     cursor = db.cursor()
 
-    Date_Time = str(datetime.now())
+    
+
+    # Get the current date and time
+    current_datetime = datetime.datetime.now()
+    # Format the datetime without milliseconds
+    formatted_datetime = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
 
     insert_sql = "INSERT INTO OcrProcess (FileName, Date_Time, Status, Pubid, Pubdate, PageNo, processed, Title, FolderPath, Full_Text, Date_Folder, articleid, copied, inserted, Title2) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s, NOW(), %s);"
     insert_values = (
         FileName,
-        Date_Time,
+        formatted_datetime,
         Status,
         Pubid,
         Pubdate,

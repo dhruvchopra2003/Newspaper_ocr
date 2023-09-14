@@ -169,12 +169,10 @@ def execute(img_path):
 
     # Defining the output directories
     output_directory = (
-        # f"outputs_without_keywords/{str(currentDate)}"
-        # f"outputs_without_keywords/{str(currentDate)}/{image_name[:-3]}"
-        # rf"\\192.168.248.31\irisprocess\tesseract\output\{str(currentDate)}\{image_name[:-3]}"
-        rf"\\192.168.248.31\irisprocess\tesseract\output\{str(currentDate)}"
-        # f"results/{str(currentDate)}/{image_name[:-3]}"
+        f"outputs_without_keywords\{str(currentDate)}"
+        # rf"\\192.168.248.31\irisprocess\tesseract\output\{str(currentDate)}"
     )
+
     FileHandler.create_directory(output_directory)
     html_folder = os.path.join(output_directory, "html")
     images_folder = os.path.join(output_directory, "images")
@@ -220,33 +218,29 @@ def execute(img_path):
             keys.append(str(i))
         # keys = keys + '\n' + str(k)
 
-    # Deleting the temporary runs folder made by the YOLO library
-    FileHandler.delete_runs_dir()
-
     # Saving the data in OcrProcess Table
-    try:
-        print("Inserting data into OcrProcess...")
-        dbc.Insert_OcrProcess(
-            FileName=image_name,
-            Pubid=pubid,
-            Pubdate=pubdate,
-            PageNo=page_no,
-            Title=headline,
-            FolderPath=str(output_directory),
-            Full_Text=article_body,
-            Date_folder=currentDate,
-        )
+    # try:
+    #     print("Inserting data into OcrProcess...")
+    #     dbc.Insert_OcrProcess(
+    #         FileName=image_name,
+    #         Pubid=pubid,
+    #         Pubdate=pubdate,
+    #         PageNo=page_no,
+    #         Title=headline,
+    #         FolderPath=str(output_directory),
+    #         Full_Text=article_body,
+    #         Date_folder=currentDate,
+    #     )
 
-    except:
-        print("FileName already exists in the table")
+    # except:
+    #     print("FileName already exists in the table")
 
-
-    # Inserting data into ocrkeywordlog table, by matching keywords from keyword_master
-    try:
-        print("Entering KeyIds into ocrkeywordlog...")
-        dbc.from_keyword_master(keys, image_name)
-    except Exception as exp:
-        print(exp)
+    # # Inserting data into ocrkeywordlog table, by matching keywords from keyword_master
+    # try:
+    #     print("Entering KeyIds into ocrkeywordlog...")
+    #     dbc.from_keyword_master(keys, image_name)
+    # except Exception as exp:
+    #     print(exp)
 
     # Saving the contents into Text and HTML files
     try:
@@ -254,7 +248,22 @@ def execute(img_path):
     except:
         print("No Header Saved")
 
-    create_template.create_html(headline, article_body, html_path)
+    # Creating HTML template
+    try:
+        temp_img_path = os.path.join("runs/detect/predict/crops/image/", image_name)
+        FileHandler.save_img(
+            source=temp_img_path, destination=html_folder, img_name=image_name
+        )
+        img_dest_path = os.path.join(html_folder, image_name)
+        create_template.create_html_with_img(
+            headline, article_body, html_path, img_dest_path
+        )
+    except:
+        create_template.create_html(headline, article_body, html_path)
+
+    # Deleting the temporary runs folder made by the YOLO library
+    FileHandler.delete_runs_dir()
+
     FileHandler.save_content(text_folder, f"{image_name}.txt", article_body)
     FileHandler.save_img(img_path, images_folder, image_name)
 

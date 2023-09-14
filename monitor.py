@@ -4,8 +4,8 @@ from watchdog.events import FileSystemEventHandler
 import time
 
 # The folder to be monitored
-folder_to_monitor = r'\\192.168.248.31\irisprocess\tesseract\input'
-# folder_to_monitor = 'images'
+# folder_to_monitor = r'\\192.168.248.31\irisprocess\tesseract\input'
+folder_to_monitor = 'images'
 
 # The Python script to be run when a new file is added to the folder
 python_script = "app.py"
@@ -18,8 +18,8 @@ class MyHandler(FileSystemEventHandler):
             return
         
         # file_name = os.path.basename(event.src_path)
-        file_path = os.path.abspath(event.src_path)
-        # file_path = os.path.relpath(event.src_path)
+        # file_path = os.path.abspath(event.src_path)
+        file_path = os.path.relpath(event.src_path)
 
         if file_path != "":
             print("File Detected")
