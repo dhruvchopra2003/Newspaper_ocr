@@ -33,10 +33,10 @@ def b_soup(text_article):
 
 def create_html(headline, article, html_path):
     article = re.sub(r"\n\n", "<br><br>", article)
-    article = re.sub(r" ", "&nbsp", article)
+    article = re.sub(r"    ", "&nbsp", article)
     article = re.sub(r"'", "&apos", article)
     article = re.sub(r'"', "&quot", article)
-    article = html.escape(article)
+    # article = html.escape(article)
 
     html_template = f"""
     <!DOCTYPE html>

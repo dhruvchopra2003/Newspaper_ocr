@@ -7,9 +7,11 @@ import textwrap
 import NLP
 import database_connector as dbc
 from datetime import date
+import datetime
 from ultralytics import YOLO
 from os import listdir
 import create_template
+
 
 # Class for initializing the YOLO Image segmentation OCR process
 class OCRProcessor:
@@ -30,6 +32,7 @@ class OCRProcessor:
     def tesseract_read(self, img_path):
         info = ps.image_to_string(Image.open(img_path))
         return info
+
 
 # Class to read text, using Pytesseract
 class TextExtractor:
@@ -94,6 +97,7 @@ class TextExtractor:
         info = ps.image_to_string(Image.open(img_path))
         return info
 
+
 # Class to extract the article details given in the image name
 class ArticleDetails:
     @staticmethod
@@ -105,6 +109,7 @@ class ArticleDetails:
         page_name = temp_list[3]
 
         return pubid, pubdate, page_no, page_name
+
 
 # Consists of various useful file handling functions
 class FileHandler:
@@ -150,15 +155,39 @@ class FileHandler:
         except:
             print("Error occured while deleting runs")
 
+
 # Main function for execution, Called from app.py
 def execute(img_path):
-
-    model_path = os.path.join(".", "models", "best.pt")
+    model_path = os.path.join(".", "models", "best2.pt")
 
     # Extracting necessary credentials
     image_name = FileHandler.get_name(img_path)
     pubid, pubdate, page_no, page_name = ArticleDetails.get_info(image_name)
-    currentDate = date.today()
+    # currentDate = date.today()
+    currentDatetime = datetime.datetime.now()
+    currentDate = currentDatetime.strftime("%Y%m%d")
+
+    # Defining the output directories
+    output_directory = (
+        # f"outputs_without_keywords/{str(currentDate)}"
+        # f"outputs_without_keywords/{str(currentDate)}/{image_name[:-3]}"
+        # rf"\\192.168.248.31\irisprocess\tesseract\output\{str(currentDate)}\{image_name[:-3]}"
+        rf"\\192.168.248.31\irisprocess\tesseract\output\{str(currentDate)}"
+        # f"results/{str(currentDate)}/{image_name[:-3]}"
+    )
+    FileHandler.create_directory(output_directory)
+    html_folder = os.path.join(output_directory, "html")
+    images_folder = os.path.join(output_directory, "images")
+    text_folder = os.path.join(output_directory, "text")
+    headlines_folder = os.path.join(output_directory, "headlines")
+
+    # Creating the directories for saving the outputs
+    FileHandler.create_directory(html_folder)
+    FileHandler.create_directory(images_folder)
+    FileHandler.create_directory(text_folder)
+    FileHandler.create_directory(headlines_folder)
+
+    html_path = os.path.join(html_folder, f"{image_name}.html")
 
     # Initializing the OCR process class and to get image segmentation
     ocr_processor = OCRProcessor(model_path)
@@ -175,8 +204,8 @@ def execute(img_path):
     article_body = TextExtractor.read_article(img_path)
 
     # List of functions and pipelines available for extracting important words, full text to list
-    art_k = NLP.remove_stop_words(article_body)
-    # art_k = NLP.get_keywords_blobs(article_body)
+    # art_k = NLP.remove_stop_words(article_body)
+    art_k = NLP.get_keywords_blobs(article_body)
     # art_k = NLP.get_keywords(article_body)
     # art_k = NLP.extract_keywords_bert(article_body)
     # art_k = NLP.tf_extract(article_body)
@@ -193,18 +222,6 @@ def execute(img_path):
 
     # Deleting the temporary runs folder made by the YOLO library
     FileHandler.delete_runs_dir()
-
-    # Defining the output directories
-    output_directory = (
-        f"outputs_without_keywords/{str(currentDate)}/{image_name[:-3]}"
-        # rf"\\192.168.248.31\irisprocess\tesseract\output\{str(currentDate)}\{image_name[:-3]}"
-        # f"results/{str(currentDate)}/{image_name[:-3]}"
-    )
-    html_folder = os.path.join(output_directory, "html")
-
-    # Creating the directories for saving the outputs
-    FileHandler.create_directory(output_directory)
-    FileHandler.create_directory(html_folder)
 
     # Saving the data in OcrProcess Table
     try:
@@ -223,7 +240,7 @@ def execute(img_path):
     except:
         print("FileName already exists in the table")
 
-    # TODO: Increase efficiency and reduce time taken
+
     # Inserting data into ocrkeywordlog table, by matching keywords from keyword_master
     try:
         print("Entering KeyIds into ocrkeywordlog...")
@@ -233,14 +250,15 @@ def execute(img_path):
 
     # Saving the contents into Text and HTML files
     try:
-        FileHandler.save_content(output_directory, "headline.txt", headline)
-        # FileHandler.save_content(html_folder, "headline.html", headline)
+        FileHandler.save_content(headlines_folder, f"{image_name}.txt", headline)
     except:
         print("No Header Saved")
 
-    FileHandler.save_content(output_directory, "article.txt", article_body)
-    FileHandler.save_content(html_folder, f"{image_name}.html", article_body)
+    create_template.create_html(headline, article_body, html_path)
+    FileHandler.save_content(text_folder, f"{image_name}.txt", article_body)
+    FileHandler.save_img(img_path, images_folder, image_name)
+
+    # FileHandler.save_content(html_folder, f"{image_name}.html", article_body)
     # FileHandler.save_content(output_directory, "keywords.txt", keys)
-    FileHandler.save_img(img_path, output_directory, image_name)
 
     print("Execution completed.")
