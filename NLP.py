@@ -43,6 +43,11 @@ def remove_bad_characters(s):
     return s
 
 
+def get_first_sentence(txt):
+    sentences = nltk.sent_tokenize(txt)
+    return sentences[0]
+
+
 def remove_stop_words(txt):
     keywords = word_tokenize(txt)
     stop_words = set(stopwords.words("english"))

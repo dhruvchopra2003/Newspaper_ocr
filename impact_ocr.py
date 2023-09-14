@@ -199,7 +199,11 @@ def execute(img_path):
         print("No headline")
 
     # Reading the article text using pytesseract
+
     article_body = TextExtractor.read_article(img_path)
+
+    if headline == "-":
+        headline = NLP.get_first_sentence(article_body)
 
     # List of functions and pipelines available for extracting important words, full text to list
     # art_k = NLP.remove_stop_words(article_body)
@@ -219,28 +223,27 @@ def execute(img_path):
         # keys = keys + '\n' + str(k)
 
     # Saving the data in OcrProcess Table
-    # try:
-    #     print("Inserting data into OcrProcess...")
-    #     dbc.Insert_OcrProcess(
-    #         FileName=image_name,
-    #         Pubid=pubid,
-    #         Pubdate=pubdate,
-    #         PageNo=page_no,
-    #         Title=headline,
-    #         FolderPath=str(output_directory),
-    #         Full_Text=article_body,
-    #         Date_folder=currentDate,
-    #     )
+    try:
+        print("Inserting data into OcrProcess...")
+        dbc.Insert_OcrProcess(
+            FileName=image_name,
+            Pubid=pubid,
+            Pubdate=pubdate,
+            PageNo=page_no,
+            Title=headline,
+            FolderPath=str(output_directory),
+            Full_Text=article_body,
+            Date_folder=currentDate,
+        )
+    except:
+        print("FileName already exists in the table")
 
-    # except:
-    #     print("FileName already exists in the table")
-
-    # # Inserting data into ocrkeywordlog table, by matching keywords from keyword_master
-    # try:
-    #     print("Entering KeyIds into ocrkeywordlog...")
-    #     dbc.from_keyword_master(keys, image_name)
-    # except Exception as exp:
-    #     print(exp)
+    # Inserting data into ocrkeywordlog table, by matching keywords from keyword_master
+    try:
+        print("Entering KeyIds into ocrkeywordlog...")
+        dbc.from_keyword_master(keys, image_name)
+    except Exception as exp:
+        print(exp)
 
     # Saving the contents into Text and HTML files
     try:
@@ -256,7 +259,7 @@ def execute(img_path):
         )
         img_dest_path = os.path.join(html_folder, image_name)
         create_template.create_html_with_img(
-            headline, article_body, html_path, img_dest_path
+            headline, article_body, html_path, image_name
         )
     except:
         create_template.create_html(headline, article_body, html_path)

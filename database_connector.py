@@ -64,14 +64,13 @@ def Insert_OcrProcess(
     
 
     # Get the current date and time
-    current_datetime = datetime.datetime.now()
+    # current_datetime = datetime.datetime.now()
     # Format the datetime without milliseconds
-    formatted_datetime = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
+    # formatted_datetime = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
 
-    insert_sql = "INSERT INTO OcrProcess (FileName, Date_Time, Status, Pubid, Pubdate, PageNo, processed, Title, FolderPath, Full_Text, Date_Folder, articleid, copied, inserted, Title2) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s, NOW(), %s);"
+    insert_sql = "INSERT INTO OcrProcess (FileName, Date_Time, Status, Pubid, Pubdate, PageNo, processed, Title, FolderPath, Full_Text, Date_Folder, articleid, copied, inserted, Title2) VALUES (%s, NOW(), %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s, NOW(), %s);"
     insert_values = (
         FileName,
-        formatted_datetime,
         Status,
         Pubid,
         Pubdate,

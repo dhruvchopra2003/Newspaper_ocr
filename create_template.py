@@ -74,7 +74,7 @@ def create_html_with_img(headline, article, html_path, img):
     <!DOCTYPE html>
     <html>
     <head>
-        <title>{html_path.split()[:-2]}</title>
+        <title>{html_path.split()[-2]}</title>
     </head>
     <body>
         <h1>{headline}</h1>
