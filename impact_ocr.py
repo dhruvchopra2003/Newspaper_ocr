@@ -186,7 +186,9 @@ def execute(img_path):
     keys = []
     for k in art_k:
         k = NLP.remove_bad_characters(k)
-        keys.append(str(k))
+        x = k.split()
+        for i in x:
+            keys.append(str(i))
         # keys = keys + '\n' + str(k)
 
     # Deleting the temporary runs folder made by the YOLO library
