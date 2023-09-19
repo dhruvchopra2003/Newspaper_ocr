@@ -162,15 +162,22 @@ def execute(img_path):
 
     # Extracting necessary credentials
     image_name = FileHandler.get_name(img_path)
+    image_name_with_ext = image_name
+    image_name = image_name[:-4]
     pubid, pubdate, page_no, page_name = ArticleDetails.get_info(image_name)
+
+    pubdate_prev = datetime.datetime.strptime(pubdate, "%Y%m%d")
+    pubdate = pubdate_prev.strftime("%Y-%m-%d")
+
     # currentDate = date.today()
     currentDatetime = datetime.datetime.now()
     currentDate = currentDatetime.strftime("%Y%m%d")
+    # currentDate_for_sql = currentDatetime.strftime("%Y-%m-%d")
 
     # Defining the output directories
     output_directory = (
-        f"outputs_without_keywords\{str(currentDate)}"
-        # rf"\\192.168.248.31\irisprocess\tesseract\output\{str(currentDate)}"
+        # f"outputs_without_keywords\{str(currentDate)}"
+        rf"\\192.168.248.31\irisprocess\tesseract\output\{str(currentDate)}"
     )
 
     FileHandler.create_directory(output_directory)
@@ -202,9 +209,11 @@ def execute(img_path):
 
     article_body = TextExtractor.read_article(img_path)
 
-    if headline == "-":
-        headline = NLP.get_first_sentence(article_body)
-
+    try:
+        if headline == "-":
+            headline = NLP.get_first_sentence(article_body)
+    except:
+        print("Nothing Found")
     # List of functions and pipelines available for extracting important words, full text to list
     # art_k = NLP.remove_stop_words(article_body)
     art_k = NLP.get_keywords_blobs(article_body)
@@ -231,7 +240,7 @@ def execute(img_path):
             Pubdate=pubdate,
             PageNo=page_no,
             Title=headline,
-            FolderPath=str(output_directory),
+            FolderPath=str(images_folder),
             Full_Text=article_body,
             Date_folder=currentDate,
         )
@@ -253,13 +262,13 @@ def execute(img_path):
 
     # Creating HTML template
     try:
-        temp_img_path = os.path.join("runs/detect/predict/crops/image/", image_name)
+        temp_img_path = os.path.join("runs/detect/predict/crops/image/", image_name_with_ext)
         FileHandler.save_img(
-            source=temp_img_path, destination=html_folder, img_name=image_name
+            source=temp_img_path, destination=html_folder, img_name=image_name_with_ext
         )
-        img_dest_path = os.path.join(html_folder, image_name)
+        img_dest_path = os.path.join(html_folder, image_name_with_ext)
         create_template.create_html_with_img(
-            headline, article_body, html_path, image_name
+            headline, article_body, html_path, image_name_with_ext
         )
     except:
         create_template.create_html(headline, article_body, html_path)
@@ -268,7 +277,7 @@ def execute(img_path):
     FileHandler.delete_runs_dir()
 
     FileHandler.save_content(text_folder, f"{image_name}.txt", article_body)
-    FileHandler.save_img(img_path, images_folder, image_name)
+    FileHandler.save_img(img_path, images_folder, image_name_with_ext)
 
     # FileHandler.save_content(html_folder, f"{image_name}.html", article_body)
     # FileHandler.save_content(output_directory, "keywords.txt", keys)
