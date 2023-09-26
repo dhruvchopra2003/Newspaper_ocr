@@ -8,7 +8,11 @@ Upon cloning, create a new folder and name it `images` where you can input all t
 Also, to ensure all the libraries are correctly installed, create a new virtual environment and run 
 `pip install -r requirements.txt`
 
-To start execution, run `python monitor.py`
+If running the code from the master branch: 
+  To start execution, run `python app.py`
+  
+If Running code of the test branch:
+  To start execution, run `python monitor.py`
 
 ## Sources and References:
 - Image segmentation and headline extraction: [YOLOV8 Docs](https://docs.ultralytics.com/)
