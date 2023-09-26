@@ -8,6 +8,11 @@ if __name__ == "__main__":
     directory_name = r'\\192.168.248.31\irisprocess\tesseract\input'
     # directory_name = "images"
 
+    # output_dir = rf'\\192.168.248.31\irisprocess\tesseract\output'
+    # output_dir = f"outputs_without_keywords"
+
+
+
     jpg_files = glob.glob(os.path.join(directory_name,"*.jpg"))    
     if len(jpg_files) != 0:
         for i in os.listdir(directory_name):
@@ -16,6 +21,7 @@ if __name__ == "__main__":
                 execute(temp)
             else:
                 print("Not an image, requesting removal...")
+                continue
 
     print("Beginning Monitoring...")
     os.system("python monitor.py")

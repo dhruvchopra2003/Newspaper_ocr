@@ -80,13 +80,19 @@ class TextExtractor:
 
         paragraph_separator = "___PARAGRAPH_SEPARATOR___"
         # text_with_separator = article.replace("\n\n", "</p>" + paragraph_separator + "<p>")
+        word_seperator = "____WORD_SEPARATOR____"
+        text_with_separator = article.replace("-\n", word_seperator)
         text_with_separator = article.replace("\n\n", paragraph_separator)
 
         # Wrap text at a maximum width of 100 characters
-        wrapped_text = textwrap.fill(text_with_separator, width=100)
+        # wrapped_text = textwrap.fill(text_with_separator, width=100)
 
         # Restore paragraph separations by replacing the unique separator
-        article = wrapped_text.replace(paragraph_separator, "\n\n")
+        # article = wrapped_text.replace(paragraph_separator, "\n\n")
+        article = text_with_separator.replace("\n", " ")
+        article = article.replace(paragraph_separator, "\n")
+        # article = article.replace(paragraph_separator, "\n\n")
+        article = article.replace(word_seperator, "")
         article = article.replace("- ", "")
 
         # article = textwrap.fill(article, width=80)
@@ -166,8 +172,8 @@ def execute(img_path):
     image_name = image_name[:-4]
     pubid, pubdate, page_no, page_name = ArticleDetails.get_info(image_name)
 
-    pubdate_prev = datetime.datetime.strptime(pubdate, "%Y%m%d")
-    pubdate = pubdate_prev.strftime("%Y-%m-%d")
+    # pubdate_prev = datetime.datetime.strptime(pubdate, "%Y%m%d")
+    # pubdate = pubdate_prev.strftime("%Y-%m-%d")
 
     # currentDate = date.today()
     currentDatetime = datetime.datetime.now()
@@ -202,12 +208,16 @@ def execute(img_path):
     headline = "-"
     try:
         headline = TextExtractor.read_header(f"runs/detect/predict/crops/headlines/")
+        if headline[0] == "\n" or headline[0] == " ":
+            headline[0] = ""
     except:
         print("No headline")
 
     # Reading the article text using pytesseract
 
     article_body = TextExtractor.read_article(img_path)
+    if article_body[0] == " " or article_body[0] == "\n":
+        article_body[0] = ""
 
     try:
         if headline == "-":
@@ -235,7 +245,7 @@ def execute(img_path):
     try:
         print("Inserting data into OcrProcess...")
         dbc.Insert_OcrProcess(
-            FileName=image_name,
+            FileName=image_name_with_ext,
             Pubid=pubid,
             Pubdate=pubdate,
             PageNo=page_no,
@@ -247,7 +257,7 @@ def execute(img_path):
     except:
         print("FileName already exists in the table")
 
-    # Inserting data into ocrkeywordlog table, by matching keywords from keyword_master
+    # # Inserting data into ocrkeywordlog table, by matching keywords from keyword_master
     try:
         print("Entering KeyIds into ocrkeywordlog...")
         dbc.from_keyword_master(keys, image_name)

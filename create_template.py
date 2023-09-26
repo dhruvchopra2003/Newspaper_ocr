@@ -32,7 +32,8 @@ def b_soup(text_article):
 
 
 def create_html(headline, article, html_path):
-    article = re.sub(r"\n\n", "<br><br>", article)
+    article = re.sub(r"\n", "<br>", article)
+    # article = re.sub(r"\n\n", "<br><br>", article)
     article = re.sub(r"    ", "&nbsp", article)
     article = re.sub(r"'", "&apos", article)
     article = re.sub(r'"', "&quot", article)
@@ -44,7 +45,7 @@ def create_html(headline, article, html_path):
     <head>
         <title>{html_path.split()[:-2]}</title>
     </head>
-    <body>
+    <body bgcolor="LightGray">
         <h1>{headline}</h1>
         <hr>
         <p>{article}</p>
@@ -64,7 +65,8 @@ def create_html(headline, article, html_path):
     print("Saved as HTML")
 
 def create_html_with_img(headline, article, html_path, img):
-    article = re.sub(r"\n\n", "<br><br>", article)
+    article = re.sub(r"\n", "<br><br>", article)
+    # article = re.sub(r"\n\n", "<br><br>", article)
     article = re.sub(r"    ", "&nbsp", article)
     article = re.sub(r"'", "&apos", article)
     article = re.sub(r'"', "&quot", article)
@@ -76,7 +78,7 @@ def create_html_with_img(headline, article, html_path, img):
     <head>
         <title>{html_path.split()[-2]}</title>
     </head>
-    <body>
+    <body bgcolor="LightGray">
         <h1>{headline}</h1>
         <hr>
         <img src="{img}" alt="{img}">

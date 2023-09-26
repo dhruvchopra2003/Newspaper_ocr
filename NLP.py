@@ -45,6 +45,12 @@ def remove_bad_characters(s):
 
 def get_first_sentence(txt):
     sentences = nltk.sent_tokenize(txt)
+    for i in sentences:
+        if i=="" or i=="\n" or i==" ":
+            continue
+        else:
+            return i
+
     return sentences[0]
 
 
