@@ -3,7 +3,7 @@ import mysql.connector
 
 def connect_to_db():
     db = mysql.connector.connect(
-        host="localhost", port=3308, user="root", password="", database="tesseract"
+        host="localhost", port=3306, user="root", password="1234", database="tesseract"
     )
     return db
 
@@ -56,8 +56,8 @@ def create_OcrProcess(db):
 
     print("Created table")
 
-# create_OcrKeywordlog(connect_to_db())
-create_OcrProcess(connect_to_db())
+create_OcrKeywordlog(connect_to_db())
+# create_OcrProcess(connect_to_db())
 
 
 

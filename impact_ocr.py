@@ -208,16 +208,20 @@ def execute(img_path):
     headline = "-"
     try:
         headline = TextExtractor.read_header(f"runs/detect/predict/crops/headlines/")
-        if headline[0] == "\n" or headline[0] == " ":
-            headline[0] = ""
-    except:
-        print("No headline")
+        if headline.startswith("\n") or headline.startswith(" "):
+            headline = headline.lstrip()
+        if len(headline) > 150:
+            headline = headline[:150]
+        if len(headline) < 25:
+            headline = NLP.get_first_sentence(article_body)
+    except Exception as exp:
+        print(exp)
 
     # Reading the article text using pytesseract
 
     article_body = TextExtractor.read_article(img_path)
-    if article_body[0] == " " or article_body[0] == "\n":
-        article_body[0] = ""
+    if article_body.startswith(" ") or article_body.startswith("\n"):
+        article_body = article_body.lstrip()
 
     try:
         if headline == "-":
@@ -254,8 +258,8 @@ def execute(img_path):
             Full_Text=article_body,
             Date_folder=currentDate,
         )
-    except:
-        print("FileName already exists in the table")
+    except Exception as e:
+        print(e)
 
     # # Inserting data into ocrkeywordlog table, by matching keywords from keyword_master
     try:

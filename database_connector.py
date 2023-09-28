@@ -4,7 +4,7 @@ from datetime import datetime
 
 def connect_to_db():
     db = mysql.connector.connect(
-        host="localhost", port=3308, user="root", password="", database="tesseract"
+        host="localhost", port=3306, user="root", password="1234", database="tesseract"
     )
     return db
 
