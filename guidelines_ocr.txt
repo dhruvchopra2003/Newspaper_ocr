@@ -1,0 +1,15 @@
+To activate the integrated python environment:
+	- cd into the Newspaperocr folder
+	- Run the command: .\ocr\Scripts\activate.bat
+
+After activating the environment, type: python app.py
+	- This will start the observer in the network folder. The images can be added there and the output can be viewed
+	- No need to make any other changes into the python files. The OCR process would continue to run as long as the command line stays on, and can silently run in the background for as long as needed without consuming much resources.
+
+
+To get the dump of the sql files:
+	- Open cmd as administrator:
+	- Run: mysqldump -u root -p -P 3307 tesseract ocrprocess > "C:\Users\OCR2\Desktop\dumps\ocrprocess_dump.sql"
+		mysqldump -u root -p -P 3307 tesseract ocrkeywordlog > "C:\Users\OCR2\Desktop\dumps\ocrkeywordlog_dump.sql"
+	-These would store the dumps into the dump folder located in the desktop, which can be shared via mail if needed.
+	
